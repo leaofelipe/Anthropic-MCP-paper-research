@@ -11,8 +11,9 @@ async function Main () {
 
   try {
     const RESPONSE = await arxiv.search(QUERY_CS_AI, MAX_RESULTS_DEFAULT)
+    const RESPONSE_IDS = Object.keys(RESPONSE)
+    console.log(RESPONSE_IDS)
     try {
-      await fileManager.ensureDataDirectory()
       await fileManager.saveData(RESPONSE)
     } catch (saveError) {
       console.error(saveError.message)

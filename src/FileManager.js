@@ -27,6 +27,7 @@ class FileManager {
     const jsonData = JSON.stringify(data, null, 2)
     
     try {
+      await this.ensureDataDirectory()
       await fs.writeFile(filePath, jsonData, 'utf8')
     } catch (err) {
       throw new Error(`Error saving file: ${err.message}`)

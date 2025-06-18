@@ -13,11 +13,9 @@ class ArxivClient {
     const response = await axios.get(url, { params })
     const parser = new xml2js.Parser()
     const result = await parser.parseStringPromise(response.data)
-    const paper_ids = []
     const papersData = {}
     result.feed.entry?.forEach(entry => {
       const shortID = entry.id[0].split('/abs/')[1]
-      paper_ids.push(shortID)
       papersData[shortID] = {
         title: entry.title[0],
         summary: entry.summary[0],
