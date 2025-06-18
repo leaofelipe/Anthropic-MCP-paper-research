@@ -1,0 +1,31 @@
+{
+  "name": "mcp-ai-paper-research",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MCP for papers research",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "dev": "node src/main.js",
+    "examples": "node src/ArxivExamples.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "standard",
+    "lint:fix": "standard --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dotenv": "^16.5.0",
+    "xml2js": "^0.6.2"
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72",
+  "devDependencies": {
+    "standard": "^17.1.2"
+  },
+  "standard": {
+    "env": [
+      "node"
+    ]
+  }
+}

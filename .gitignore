@@ -1,0 +1,41 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (NUNCA versionar!)
+.env
+
+# Logs
+*.log
+logs/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+
+# Temporários
+*.tmp
+*.temp
+
+# npm
+npm-debug.log*
+.npm
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+
+# Temporários
+*.tmp
+*.temp
+TASK.md
+TODO.md
