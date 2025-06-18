@@ -2,7 +2,7 @@ import axios from 'axios'
 import xml2js from 'xml2js'
 
 class ArxivClient {
-  async search (query, maxResults = 10) {
+  async search (query, maxResults) {
     const url = process.env.ARXIV_API_URL
     const params = {
       search_query: query,
@@ -13,14 +13,25 @@ class ArxivClient {
     const response = await axios.get(url, { params })
     const parser = new xml2js.Parser()
     const result = await parser.parseStringPromise(response.data)
+    const paper_ids = []
+    const papersData = {}
+    result.feed.entry?.forEach(entry => {
+      const shortID = entry.id[0].split('/abs/')[1]
+      paper_ids.push(shortID)
+      papersData[shortID] = {
+        title: entry.title[0],
+        summary: entry.summary[0],
+        authors: entry.author?.map(a => a.name[0]),
+        pdf_url: entry.link?.find(link => this.isPdfLink(link.$.href))?.$?.href,
+        published: entry.published[0]
+      }
+    })
+    return papersData
+  }
 
-    return result.feed.entry?.map(entry => ({
-      title: entry.title[0],
-      summary: entry.summary[0],
-      authors: entry.author?.map(a => a.name[0]),
-      pdf_url: entry.link?.find(l => l.$.type === 'application/pdf')?.$?.href,
-      published: entry.published[0]
-    })) || []
+  isPdfLink (url) {
+    const arxivPdfRegex = /^https:\/\/arxiv\.org\/pdf\/\d{4}\.\d{4,5}(v\d+)?$/
+    return arxivPdfRegex.test(url)
   }
 }
 

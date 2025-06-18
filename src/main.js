@@ -13,8 +13,7 @@ async function Main () {
     const RESPONSE = await arxiv.search(QUERY_CS_AI, MAX_RESULTS_DEFAULT)
     try {
       await fileManager.ensureDataDirectory()
-      const filePath = await fileManager.saveToJson(RESPONSE)
-      console.log(`\nData successfully saved to: ${filePath}`)
+      await fileManager.saveData(RESPONSE)
     } catch (saveError) {
       console.error(saveError.message)
     }

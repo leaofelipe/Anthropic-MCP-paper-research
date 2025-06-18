@@ -4,8 +4,6 @@ import { join } from 'path'
 const DATA_DIR = join('.', process.env.DATA_DIRECTORY)
 const FILE_NAME = process.env.DATA_FILENAME
 
-console.log(`Data directory: ${DATA_DIR}`)
-
 class FileManager {
   async ensureDataDirectory () {
     try {
@@ -24,15 +22,34 @@ class FileManager {
     }
   }
 
-  async saveToJson (data) {
+  async saveData (data) {
     const filePath = join(DATA_DIR, FILE_NAME)
     const jsonData = JSON.stringify(data, null, 2)
     
     try {
       await fs.writeFile(filePath, jsonData, 'utf8')
-      return filePath
     } catch (err) {
       throw new Error(`Error saving file: ${err.message}`)
+    }
+  }
+
+  async readData () {
+    const filePath = join(DATA_DIR, FILE_NAME)
+    try {
+      const jsonData = await fs.readFile(filePath, 'utf8')
+      return JSON.parse(jsonData)
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  async readDataById (paper_id) {
+    try {
+      const data = await this.readData()
+      if (data[paper_id]) return data[paper_id]
+      throw new Error(`Data with ID '${paper_id}' not found`)
+    } catch (err) {
+      throw new Error(`Error reading data by ID: ${err.message}`)
     }
   }
 }
