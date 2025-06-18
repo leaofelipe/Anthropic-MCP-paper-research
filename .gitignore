@@ -39,3 +39,6 @@ build/
 *.temp
 TASK.md
 TODO.md
+
+# Data
+/data/*
