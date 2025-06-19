@@ -5,6 +5,7 @@
 This project uses **Yarn** as the package manager. Please use `yarn` commands instead of `npm` for all package management operations.
 
 ### Examples:
+
 - Use `yarn install` instead of `npm install`
 - Use `yarn add <package>` instead of `npm install <package>`
 - Use `yarn add -D <package>` instead of `npm install --save-dev <package>`
@@ -12,11 +13,13 @@ This project uses **Yarn** as the package manager. Please use `yarn` commands in
 - Use `yarn run <script>` instead of `npm run <script>`
 
 ### Project Configuration
+
 - Package manager: Yarn v1.22.21
 - Main entry point: `src/main.js`
 
 ### Project Code
-- Node.js project with ES modules support
+
+- Node.js project with CommonJS modules
 - Follows JavaScript Standard style guidelines
 - Use Clean Code principles
 - Follow the project's coding style and conventions

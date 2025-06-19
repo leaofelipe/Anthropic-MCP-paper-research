@@ -1,8 +1,12 @@
-import axios from 'axios'
-import xml2js from 'xml2js'
+const axios = require('axios')
+const xml2js = require('xml2js')
+const FileManager = require('./FileManager.js')
+
+const QUERY_CS_AI = 'cat:cs.AI'
+const MAX_RESULTS_DEFAULT = 3
 
 class ArxivClient {
-  async search (query, maxResults) {
+  async search (query = QUERY_CS_AI, maxResults = MAX_RESULTS_DEFAULT) {
     const url = process.env.ARXIV_API_URL
     const params = {
       search_query: query,
@@ -24,7 +28,13 @@ class ArxivClient {
         published: entry.published[0]
       }
     })
-    return papersData
+    const PAPER_IDS = Object.keys(papersData)
+    try {
+      await FileManager.saveData(papersData)
+      return PAPER_IDS
+    } catch (err) {
+      throw new Error(err)
+    }
   }
 
   isPdfLink (url) {
@@ -33,4 +43,4 @@ class ArxivClient {
   }
 }
 
-export default ArxivClient
+module.exports = new ArxivClient()

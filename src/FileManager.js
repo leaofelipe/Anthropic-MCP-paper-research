@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs'
-import { join } from 'path'
+const { promises: fs } = require('fs')
+const { join } = require('path')
 
 const DATA_DIR = join('.', process.env.DATA_DIRECTORY)
 const FILE_NAME = process.env.DATA_FILENAME
@@ -14,7 +14,7 @@ class FileManager {
         throw new Error(`Error checking data directory: ${err.message}`)
       }
     }
-    
+
     try {
       await fs.mkdir(DATA_DIR, { recursive: true })
     } catch (err) {
@@ -25,7 +25,7 @@ class FileManager {
   async saveData (data) {
     const filePath = join(DATA_DIR, FILE_NAME)
     const jsonData = JSON.stringify(data, null, 2)
-    
+
     try {
       await this.ensureDataDirectory()
       await fs.writeFile(filePath, jsonData, 'utf8')
@@ -55,4 +55,4 @@ class FileManager {
   }
 }
 
-export default FileManager
+module.exports = new FileManager()
