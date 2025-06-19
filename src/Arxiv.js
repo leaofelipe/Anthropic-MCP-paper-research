@@ -6,7 +6,7 @@ const QUERY_CS_AI = 'cat:cs.AI'
 const MAX_RESULTS_DEFAULT = 3
 
 class ArxivClient {
-  async search (query = QUERY_CS_AI, maxResults = MAX_RESULTS_DEFAULT) {
+  async search(query = QUERY_CS_AI, maxResults = MAX_RESULTS_DEFAULT) {
     const url = process.env.ARXIV_API_URL
     const params = {
       search_query: query,
@@ -37,7 +37,7 @@ class ArxivClient {
     }
   }
 
-  isPdfLink (url) {
+  isPdfLink(url) {
     const arxivPdfRegex = /^https:\/\/arxiv\.org\/pdf\/\d{4}\.\d{4,5}(v\d+)?$/
     return arxivPdfRegex.test(url)
   }
