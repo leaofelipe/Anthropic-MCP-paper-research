@@ -37,6 +37,14 @@ class ArxivClient {
     }
   }
 
+  async getDocumentById(paperId) {
+    const paperData = await FileManager.readDataById(paperId)
+    if (!paperData) {
+      throw new Error(`Paper with ID '${paperId}' not found`)
+    }
+    return paperData
+  }
+
   isPdfLink(url) {
     const arxivPdfRegex = /^https:\/\/arxiv\.org\/pdf\/\d{4}\.\d{4,5}(v\d+)?$/
     return arxivPdfRegex.test(url)

@@ -23,6 +23,7 @@ build/
 # Temporários
 *.tmp
 *.temp
+/output/*
 
 # npm
 npm-debug.log*

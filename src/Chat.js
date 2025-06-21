@@ -8,60 +8,78 @@ const ROLES = {
 class Chat {
   constructor() {
     this.anthropic = new Anthropic()
-    this._isQueryProcessing = false
-    this._assistantContent = []
+    this.chatHistory = []
   }
 
-  reset() {
-    this._isQueryProcessing = false
-    this._assistantContent = []
+  getProcessHandler(contentType) {
+    const handlers = {
+      text: this.processTextContent.bind(this),
+      tool_use: this.processToolContent.bind(this)
+    }
+    return (
+      handlers[contentType] ||
+      (() => {
+        throw new Error(`No handler for content type: ${contentType}`)
+      })
+    )
   }
 
   async processQuery(query) {
+    console.log('==> Process query:', query)
     this.messages = [{ role: ROLES.USER, content: query }]
     this._isQueryProcessing = true
-    const response = await this.anthropic.sendMessage(this.messages)
-    let textResponse, toolResponse
+    let response = await this.anthropic.sendMessage(this.messages)
+
     while (this._isQueryProcessing) {
+      this._assistantContent = []
+      this._toolResults = []
+
       for (const content of response.content) {
-        textResponse = await this.processTextContent(content)
-        toolResponse = await this.processToolContent(content)
+        const processHandler = this.getProcessHandler(content.type)
+        await processHandler(content)
       }
-      if (response.content.length === 1) this._isQueryProcessing = false
-      return textResponse || toolResponse || undefined
+
+      const hasToolUse = response.content.some(
+        content => content.type === 'tool_use'
+      )
+
+      if (hasToolUse) {
+        this.messages.push({
+          role: ROLES.ASSISTANT,
+          content: this._assistantContent
+        })
+
+        this.messages.push({
+          role: ROLES.USER,
+          content: this._toolResults
+        })
+
+        response = await this.anthropic.sendMessage(this.messages)
+
+        this.messages.push(response)
+        this.chatHistory.push(this.messages)
+      } else {
+        this._isQueryProcessing = false
+      }
     }
   }
 
   async processTextContent(content) {
-    if (content.type !== 'text') return
     this._assistantContent.push(content)
+    console.log(content.text)
     return content.text
   }
 
   async processToolContent(content) {
-    if (content.type !== 'tool_use') return
     this._assistantContent.push(content)
-    this.messages.push({
-      role: ROLES.ASSISTANT,
-      content: this._assistantContent
-    })
     const { id: toolId, input: toolArgs, name: toolName } = content
-    const toolResponse = await executeTool(toolName, toolArgs)
-    this.messages.push({
-      role: ROLES.USER,
-      content: [
-        {
-          type: 'tool_result',
-          tool_use_id: toolId,
-          content: toolResponse
-        }
-      ]
+    const result = await executeTool(toolName, toolArgs)
+    this._toolResults.push({
+      type: 'tool_result',
+      tool_use_id: toolId,
+      content: result
     })
-    const response = await this.anthropic.sendMessage(this.messages, 2024)
-    if (response.content.length === 1 && response.content[0].type === 'text') {
-      this._isQueryProcessing = false
-      return response.content[0].text
-    }
+    return result
   }
 }
 

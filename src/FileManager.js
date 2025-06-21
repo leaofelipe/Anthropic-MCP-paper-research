@@ -5,7 +5,7 @@ const DATA_DIR = join('.', process.env.DATA_DIRECTORY)
 const FILE_NAME = process.env.DATA_FILENAME
 
 class FileManager {
-  async ensureDataDirectory () {
+  async ensureDataDirectory() {
     try {
       await fs.stat(DATA_DIR)
       await fs.rm(DATA_DIR, { recursive: true, force: true })
@@ -22,8 +22,8 @@ class FileManager {
     }
   }
 
-  async saveData (data) {
-    const filePath = join(DATA_DIR, FILE_NAME)
+  async saveData(data, fileName = FILE_NAME, dataDir = DATA_DIR) {
+    const filePath = join(dataDir, fileName)
     const jsonData = JSON.stringify(data, null, 2)
 
     try {
@@ -34,7 +34,7 @@ class FileManager {
     }
   }
 
-  async readData () {
+  async readData() {
     const filePath = join(DATA_DIR, FILE_NAME)
     try {
       const jsonData = await fs.readFile(filePath, 'utf8')
@@ -44,7 +44,7 @@ class FileManager {
     }
   }
 
-  async readDataById (paper_id) {
+  async readDataById(paper_id) {
     try {
       const data = await this.readData()
       if (data[paper_id]) return data[paper_id]

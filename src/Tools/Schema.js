@@ -18,6 +18,21 @@ const Tools = [
       },
       required: ['topic']
     }
+  },
+  {
+    name: 'extract_info',
+    description:
+      'Search for information about a specific paper across all topic directories.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        paper_id: {
+          type: 'string',
+          description: 'The ID of the paper to look for'
+        }
+      },
+      required: ['paper_id']
+    }
   }
 ]
 

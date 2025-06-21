@@ -1,7 +1,8 @@
 const ArxivClient = require('../Arxiv')
 
 const TOOL_MAP = {
-  search_papers: ArxivClient.search.bind(ArxivClient)
+  search_papers: ArxivClient.search.bind(ArxivClient),
+  extract_info: ArxivClient.getDocumentById.bind(ArxivClient)
 }
 
 async function executeTool(toolName, args) {
@@ -11,7 +12,7 @@ async function executeTool(toolName, args) {
   if (!response)
     return 'The operation completed but did not return any results.'
   if (Array.isArray(response)) return response.join(', ')
-  if (typeof response === 'object') return JSON.stringify(response, null, 2)
+  if (typeof response === 'object') return JSON.stringify(response)
   return String(response)
 }
 
