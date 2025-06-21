@@ -8,7 +8,14 @@ const ROLES = {
 class Chat {
   constructor() {
     this.anthropic = new Anthropic()
-    this.chatHistory = []
+  }
+
+  reset() {
+    this._chatHistory = []
+    this._messages = []
+    this._isQueryProcessing = false
+    this._assistantContent = []
+    this._toolResults = []
   }
 
   getProcessHandler(contentType) {
@@ -16,48 +23,41 @@ class Chat {
       text: this.processTextContent.bind(this),
       tool_use: this.processToolContent.bind(this)
     }
-    return (
-      handlers[contentType] ||
-      (() => {
-        throw new Error(`No handler for content type: ${contentType}`)
-      })
-    )
+    return handlers[contentType]
+  }
+
+  async handleContentTypes(response) {
+    for (const content of response.content) {
+      await this.getProcessHandler(content.type)?.(content)
+    }
   }
 
   async processQuery(query) {
-    console.log('==> Process query:', query)
-    this.messages = [{ role: ROLES.USER, content: query }]
+    this.reset()
+    const message = { role: ROLES.USER, content: query }
+    this._messages.push(message)
     this._isQueryProcessing = true
-    let response = await this.anthropic.sendMessage(this.messages)
+    let response = await this.anthropic.sendMessage(this._messages)
 
     while (this._isQueryProcessing) {
-      this._assistantContent = []
-      this._toolResults = []
-
-      for (const content of response.content) {
-        const processHandler = this.getProcessHandler(content.type)
-        await processHandler(content)
-      }
+      await this.handleContentTypes(response)
 
       const hasToolUse = response.content.some(
         content => content.type === 'tool_use'
       )
 
       if (hasToolUse) {
-        this.messages.push({
+        this._messages.push({
           role: ROLES.ASSISTANT,
           content: this._assistantContent
         })
 
-        this.messages.push({
+        this._messages.push({
           role: ROLES.USER,
           content: this._toolResults
         })
 
-        response = await this.anthropic.sendMessage(this.messages)
-
-        this.messages.push(response)
-        this.chatHistory.push(this.messages)
+        response = await this.anthropic.sendMessage(this._messages)
       } else {
         this._isQueryProcessing = false
       }
