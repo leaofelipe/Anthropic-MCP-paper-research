@@ -1,5 +1,5 @@
 require('dotenv').config()
-const Chat = require('./Chat')
+const IO = require('./IO')
 
-const chat = new Chat()
-chat.start()
+const io = new IO()
+io.start()

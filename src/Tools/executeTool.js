@@ -5,6 +5,8 @@ const TOOL_MAP = {
 }
 
 async function executeTool(toolName, args) {
+  console.log(`Execute Tool: Calling Tool: ${toolName} with args:`, args)
+
   const response = await TOOL_MAP[toolName]?.(...Object.values(args))
   if (!response)
     return 'The operation completed but did not return any results.'

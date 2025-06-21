@@ -17,35 +17,25 @@ class Chat {
     this._assistantContent = []
   }
 
-  async start() {
-    console.log('Type your query or "quit" to exit:')
-    process.stdin.on('data', async data => {
-      const query = data.toString().trim()
-      try {
-        await this.processQuery(query)
-      } catch (error) {
-        console.error('Error processing query:', error)
-      }
-    })
-  }
-
   async processQuery(query) {
     this.messages = [{ role: ROLES.USER, content: query }]
     this._isQueryProcessing = true
     const response = await this.anthropic.sendMessage(this.messages)
+    let textResponse, toolResponse
     while (this._isQueryProcessing) {
       for (const content of response.content) {
-        await this.processTextContent(content)
-        await this.processToolContent(content)
+        textResponse = await this.processTextContent(content)
+        toolResponse = await this.processToolContent(content)
       }
       if (response.content.length === 1) this._isQueryProcessing = false
+      return textResponse || toolResponse || undefined
     }
   }
 
   async processTextContent(content) {
     if (content.type !== 'text') return
-    console.log('Response:', content.text)
     this._assistantContent.push(content)
+    return content.text
   }
 
   async processToolContent(content) {
@@ -56,7 +46,6 @@ class Chat {
       content: this._assistantContent
     })
     const { id: toolId, input: toolArgs, name: toolName } = content
-    console.log(`Calling Tool: ${toolName} (${toolId}) with args:`, toolArgs)
     const toolResponse = await executeTool(toolName, toolArgs)
     this.messages.push({
       role: ROLES.USER,
@@ -70,8 +59,8 @@ class Chat {
     })
     const response = await this.anthropic.sendMessage(this.messages, 2024)
     if (response.content.length === 1 && response.content[0].type === 'text') {
-      console.log('Response:', response.content[0].text)
       this._isQueryProcessing = false
+      return response.content[0].text
     }
   }
 }
