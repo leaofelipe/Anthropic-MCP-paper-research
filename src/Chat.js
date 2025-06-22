@@ -11,11 +11,9 @@ class Chat {
   }
 
   reset() {
-    this._chatHistory = []
-    this._messages = []
-    this._isQueryProcessing = false
     this._assistantContent = []
     this._toolResults = []
+    this._hasToolUse = false
   }
 
   getProcessHandler(contentType) {
@@ -27,41 +25,36 @@ class Chat {
   }
 
   async handleContentTypes(response) {
-    for (const content of response.content) {
-      await this.getProcessHandler(content.type)?.(content)
-    }
+    const promises = response.content.map(content => {
+      const handler = this.getProcessHandler(content.type)
+      return handler ? handler(content) : Promise.resolve()
+    })
+    await Promise.all(promises)
   }
 
   async processQuery(query) {
     this.reset()
-    const message = { role: ROLES.USER, content: query }
-    this._messages.push(message)
-    this._isQueryProcessing = true
-    let response = await this.anthropic.sendMessage(this._messages)
+    this._messages = [{ role: ROLES.USER, content: query }]
+    const response = await this.anthropic.sendMessage(this._messages)
+    await this.processResponse(response)
+  }
 
-    while (this._isQueryProcessing) {
-      await this.handleContentTypes(response)
+  async processResponse(response) {
+    await this.handleContentTypes(response)
+    if (!this._hasToolUse) return
 
-      const hasToolUse = response.content.some(
-        content => content.type === 'tool_use'
-      )
+    this._messages.push({
+      role: ROLES.ASSISTANT,
+      content: this._assistantContent
+    })
 
-      if (hasToolUse) {
-        this._messages.push({
-          role: ROLES.ASSISTANT,
-          content: this._assistantContent
-        })
-
-        this._messages.push({
-          role: ROLES.USER,
-          content: this._toolResults
-        })
-
-        response = await this.anthropic.sendMessage(this._messages)
-      } else {
-        this._isQueryProcessing = false
-      }
-    }
+    this._messages.push({
+      role: ROLES.USER,
+      content: this._toolResults
+    })
+    this.reset()
+    const nextResponse = await this.anthropic.sendMessage(this._messages)
+    await this.processResponse(nextResponse)
   }
 
   async processTextContent(content) {
@@ -71,6 +64,7 @@ class Chat {
   }
 
   async processToolContent(content) {
+    this._hasToolUse = true
     this._assistantContent.push(content)
     const { id: toolId, input: toolArgs, name: toolName } = content
     const result = await executeTool(toolName, toolArgs)
