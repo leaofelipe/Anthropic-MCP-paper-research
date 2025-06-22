@@ -2,22 +2,23 @@
   "name": "mcp-ai-paper-research",
   "version": "0.1.0",
   "description": "MCP for papers research",
-  "main": "src/main.js",
+  "private": true,
   "scripts": {
-    "start": "node src/main.js",
-    "dev": "node src/main.js",
-    "examples": "node src/ArxivExamples.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:server": "node src/MCP-Server/server.js",
+    "start:inspector": "npx @modelcontextprotocol/inspector node src/MCP-Server/server.js",
+    "start:chat": "node src/IO.js",
     "lint": "standard",
     "lint:fix": "standard --fix"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Felipe Leão <felipe@felipeleao.com> (http://felipeleao.com/)",
+  "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.54.0",
+    "@modelcontextprotocol/sdk": "^1.13.0",
     "axios": "^1.10.0",
     "dotenv": "^16.5.0",
-    "xml2js": "^0.6.2"
+    "xml2js": "^0.6.2",
+    "zod": "^3.25.67"
   },
   "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72",
   "devDependencies": {

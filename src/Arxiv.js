@@ -2,11 +2,10 @@ const axios = require('axios')
 const xml2js = require('xml2js')
 const FileManager = require('./FileManager.js')
 
-const QUERY_CS_AI = 'cat:cs.AI'
 const MAX_RESULTS_DEFAULT = 3
 
 class ArxivClient {
-  async search(query = QUERY_CS_AI, maxResults = MAX_RESULTS_DEFAULT) {
+  async search(query, maxResults = MAX_RESULTS_DEFAULT) {
     const url = process.env.ARXIV_API_URL
     const params = {
       search_query: query,

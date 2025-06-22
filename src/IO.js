@@ -1,3 +1,4 @@
+require('dotenv').config()
 const Chat = require('./Chat')
 
 class IO {
@@ -18,4 +19,5 @@ class IO {
   }
 }
 
-module.exports = IO
+const io = new IO()
+io.start()

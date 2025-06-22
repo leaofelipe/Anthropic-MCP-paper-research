@@ -42,16 +42,11 @@ class Chat {
   async processResponse(response) {
     await this.handleContentTypes(response)
     if (!this._hasToolUse) return
-
     this._messages.push({
       role: ROLES.ASSISTANT,
       content: this._assistantContent
     })
-
-    this._messages.push({
-      role: ROLES.USER,
-      content: this._toolResults
-    })
+    this._messages.push({ role: ROLES.USER, content: this._toolResults })
     this.reset()
     const nextResponse = await this.anthropic.sendMessage(this._messages)
     await this.processResponse(nextResponse)
