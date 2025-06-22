@@ -20,7 +20,7 @@ yarn install
 
 ## Configuration
 
-Create a `.env` file in the root directory with your Anthropic API key:
+Create a `.env` file in the root directory with your [Anthropic API key](https://docs.anthropic.com/en/api/admin-api/apikeys/get-api-key):
 
 ```env
 ANTHROPIC_API_KEY=your_api_key_here
